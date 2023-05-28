@@ -132,12 +132,13 @@ if authenticate == 'Login' :
     res_box = st.empty()
     if pressed :
         completions = openai.ChatCompletion.create(model="gpt-4", messages=[
-                                          {"role": "assistant", 
-                                           "content": chat_gpt,
-                                           }],
-                                          temperature=0.5,
-                                          max_tokens=100,
-                                          frequency_penalty=0.0,)
+                            {"role": "assistant",
+                            "content": chat_gpt,
+                            }],
+                            temperature=0.5,
+                            max_tokens=6000,
+                            frequency_penalty=0.0,)
+        
         result = completions.choices[0].message.content
         array = result.split(", ")
         res_box.write(result)
