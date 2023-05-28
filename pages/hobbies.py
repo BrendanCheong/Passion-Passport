@@ -14,7 +14,7 @@ dataMap = pd.DataFrame(mapData)
 dataMap['latitude'] = pd.to_numeric(dataMap['latitude'])
 dataMap['longitude'] = pd.to_numeric(dataMap['longitude'])
 m = folium.Map(location=[dataMap.latitude.mean(), dataMap.longitude.mean()], 
-                 zoom_start=3, control_scale=True)
+                 zoom_start=12, control_scale=True)
 
 #Loop through each row in the dataframe
 for i,row in dataMap.iterrows():

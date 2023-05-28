@@ -78,7 +78,7 @@ base_url = "https://test.api.amadeus.com/v1/"
 openai.api_key = st.secrets['openai_key']
 firebase = pyrebase.initialize_app(firebaseConfig)
 auth = firebase.auth()
-
+st.session_state.authenticated = False
 url = "https://test.api.amadeus.com/v1/security/oauth2/token"
 data = {
     "grant_type": "client_credentials",
@@ -96,6 +96,7 @@ headers = {
 
 
 db = firebase.database()
+st.session_state.db = db
 storage = firebase.storage()
 
 
@@ -124,7 +125,6 @@ if authenticate == 'Signup':
         db.child(user['localId']).child("Handle").set(handle)
         db.child(user['localId']).child("ID").set(user['localId'])
         db.child(user['localId']).child("Location").set(place)
-        db.child(user['localId']).child("Friends").set(["SAs"])
         st.title("Hi, " + handle)
         st.info('Login successfully')
 
@@ -136,19 +136,17 @@ if authenticate == 'Login' :
     password = st.sidebar.text_input('Enter your password', type = 'password')
     submit = st.sidebar.button('Sign Up')
     openai.api_key = st.secrets['openai_key']
-
-
     st.subheader("AI Assistant : Streamlit + OpenAI: `stream` *argument*")
-
     people_array = ""
     opp_input = st.text_input("Your friend: ",placeholder = "Friends suggestion")
     date = st.date_input("Departure Date")
     adults = st.number_input("Number of adults ")
     for i in range(0, int(adults)) :
-        user_input = st.text_input("You: ",placeholder = "Your suggestion", key="input" + str(i))
+        user_input = st.text_area("Person " + str(i) ,placeholder = "Your suggestion", key="input" + str(i))
         people_array += "People " + str(i) + " likes to " + user_input + "."
-    chat_gpt = people_array + "Suggest 2 cities according to these people in the format 'Bangkok, Jakarta'. Cities only "
+        chat_gpt = people_array + "Suggest 1 city according to these people in the format 'Bangkok'. City only "
     pressed = st.button('Submit')
+        
     res_box = st.empty()
     if pressed :
         completions = openai.ChatCompletion.create(model="gpt-4", messages=[
@@ -168,8 +166,9 @@ if authenticate == 'Login' :
             res = (data.json()['data'][0])
             dataTwo = requests.get("https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=SYD&destinationLocationCode=" + res['iataCode'] +"&departureDate=" + str(date) + "&adults=" + str(int(adults)) + "&currencyCode=SGD&max=2", headers=headers)
             dataThree = requests.get("https://test.api.amadeus.com/v2/duty-of-care/diseases/covid19-area-report?countryCode=" + res['address']['countryCode'], headers=headers)
-            st.text(dataTwo.json())
+
             resTwo = dataTwo.json()['data']
+            st.session_state.flight = resTwo
             for ansTwo in resTwo :
                 st.text("SGD " + ansTwo['price']['total'])
             secondPrompt = "Plan me an itinerary of " + answer + "to do " + user_input +"and" + opp_input +". Limit to 50 words each day for 5 days"
@@ -182,6 +181,7 @@ if authenticate == 'Login' :
                             frequency_penalty=0.0,)
             secondResult = completions.choices[0].message.content
             st.text(secondResult)
+            st.session_state.itin = secondResult
             thirdResult = ''
             response2 = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
@@ -196,7 +196,6 @@ if authenticate == 'Login' :
                 presence_penalty=0.0
             )
             thirdResult = response2.choices[0].message.content
-            st.text(thirdResult)
             thirdArray = find_long_and_lat(thirdResult)
             mapData = []
             for long, lat in thirdArray:
@@ -214,15 +213,18 @@ if authenticate == 'Login' :
                             st.image(ans['pictures'][0])
                         if 'shortDescription' in ans:
                             components.html(ans['shortDescription'])
-                        mapData.append({
+                        object = {
                                 'name': ans['name'],
                                 'latitude': lat,
                                 'longitude': long,
                                 'safe': str(dataThree.json()['data']['summary']['text']),
                                 'bookingLink': ans['bookingLink'],
                                 'price': ans['price']['amount']
-                        })
-            st.header("Map")
+                        }
+                        if object not in mapData :
+                            mapData.append(object)
+
+            st.header("Analysis")
 
             # Convert latitude and longitude columns to numeric format
             dataMap = pd.DataFrame(mapData)
@@ -238,33 +240,18 @@ if authenticate == 'Login' :
     if submit :
         user = auth.sign_in_with_email_and_password(email, password)
         bio = st.radio('Jump to', ['Home', 'Meet Up'])
+        username = db.child(user['localId']).child("Handle").get()
+        st.session_state.name = username
+        st.session_state.user = user
+        if user is not None :
+            st.session_state.authenticated = True
         if bio == 'Home' :
             st.title("Home")
            
 
 
-
-
-
-
-
-
-
-
-
         else :    
-            st.title("Meet up")    
-            all_friends = db.child(user['localId']).child("Friends").get()
-            if all_friends.val() is not None:    
-                res= []
-                for friend in reversed(all_friends.each()):
-                        ans = friend.val()["Handle"]
-                        res.append(ans)
-                all = st.selectbox("Colleague ", res)
-
-
-            else :
-                st.text("Add your colleague")
+            st.title("Welcome")    
 
 
              
