@@ -8,6 +8,9 @@ import openai
 import streamlit.components.v1 as components
 from streamlit_pills import pills
 import pycountry
+import pandas as pd
+import folium
+from streamlit_folium import st_folium, folium_static
 
 firebaseConfig = {
   "apiKey": "AIzaSyCgRqAR-Hr5yNeG31Qgd9ROgBpAOZqRtPc",
@@ -19,6 +22,55 @@ firebaseConfig = {
   "measurementId": "G-EDRDB79V2N",
   "databaseURL": "https://lifehack2023-f362e-default-rtdb.asia-southeast1.firebasedatabase.app/"
 }
+
+
+def isFloat(x):
+    try:
+        float(x)
+        return True
+    except:
+        return False
+    
+# String will look something like "x: (2.342,3.124),y: (5.2443,1.4536)"
+def find_long_and_lat(s):
+    lst = []
+    curr_left, curr_comma, curr_right = -1, -1, -1
+    for i in range(len(s)):
+        if (s[i] == "("):
+            curr_left = i
+        elif (s[i] == ","):
+            if (curr_left != -1):
+                curr_comma = i
+        elif (s[i] == ")"):
+            if (curr_comma > curr_left):
+                curr_right = i
+                long = s[curr_left + 1: curr_comma]
+                lat = s[curr_comma + 2: curr_right]
+                if ((len(long) > 3) and (long[-1].isalpha())):
+                    long = long[-3]
+                if ((len(lat) > 3) and (lat[-1].isalpha())):
+                    lat = lat[-3]
+                if ((isFloat(long)) and (isFloat(lat))):
+                    st.text(str(long) + " " + str(lat))
+                    lst.append((long, lat))
+                curr_left, curr_comma, curr_right = -1, -1, -1
+            else:
+                curr_left, curr_comma = -1, -1
+    if (curr_comma > curr_left): #Check final
+        long = s[curr_left + 1: curr_comma]
+        lat = s[curr_comma + 2: len(s)]
+        if ((len(long) > 3) and (long[-1].isalpha())):
+            long = long[-3]
+        if ((len(lat) > 3) and (lat[-1].isalpha())):
+            lat = lat[-3]
+        if ((isFloat(long)) and (isFloat(lat))):
+            st.text(str(long) + " " + str(lat))
+            lst.append((long, lat))
+    return lst
+
+
+
+
 
 base_url = "https://test.api.amadeus.com/v1/"
 
@@ -42,44 +94,12 @@ headers = {
     "Content-Type": "application/json"
 }
 
-def extract_numbers(s):
-    result = re.search('\((.*?),\s*(.*?)\)', s)
-    if result:
-        first_number = float(result.group(1))
-        second_number = float(result.group(2))
-        return first_number, second_number
-    else:
-        return None, None
-    
-# String will look something like "x = (2.342,3.124),y = (5.2443,1.4536)"
-def find_long_and_lat(s):
-    # Split by the first parenthesis, so it looks something like this
-    # [x = , 2.342,3.124)y = , 5.2443,1.4536)]
-    lst = []
-    lst1 = s.split("(")
-    for i in range (1, len(lst1)):
-        # Split by comma, so it looks something like this
-        # [2.342, 3.124)y =], then take the first element for long
-        lst2 = lst1[i].split(",")
-        if len(lst2) == 2:
-            currLong = lst2[0]
-            # If got the degree, need remove
-            if (currLong[-1].isalpha()):
-                currLong = currLong[:-3]
-            # Split by second parenthesis for the second element, so it looks like
-            # [3.124, y =], then take the first element for lat
-            currLat = lst2[1].split(")")[0]
-            # If got the degree, need remove
-            if (currLat[-1].isalpha()):
-                currLat = currLat[:-3]
-            lst.append((currLong, currLat))
-    return lst
 
 db = firebase.database()
 storage = firebase.storage()
 
 
-st.sidebar.title("Work App")
+st.sidebar.title("Your Travelling App")
 
 
 # Authentication
@@ -127,7 +147,7 @@ if authenticate == 'Login' :
     for i in range(0, int(adults)) :
         user_input = st.text_input("You: ",placeholder = "Your suggestion", key="input" + str(i))
         people_array += "People " + str(i) + " likes to " + user_input + "."
-    chat_gpt = people_array + "Suggest 2 cities according to the people's hobbies in the format 'Bangkok, Jakarta, Singapore, Hanoi, Nagoya'"
+    chat_gpt = people_array + "Suggest 2 cities according to these people in the format 'Bangkok, Jakarta'. Cities only "
     pressed = st.button('Submit')
     res_box = st.empty()
     if pressed :
@@ -136,7 +156,7 @@ if authenticate == 'Login' :
                             "content": chat_gpt,
                             }],
                             temperature=0.5,
-                            max_tokens=6000,
+                            max_tokens=1000,
                             frequency_penalty=0.0,)
         
         result = completions.choices[0].message.content
@@ -144,14 +164,15 @@ if authenticate == 'Login' :
         res_box.write(result)
         for answer in array :
             data = requests.get("https://test.api.amadeus.com/v1/reference-data/locations/cities?keyword=" + answer, headers=headers)
-
+            
             res = (data.json()['data'][0])
-            dataTwo = requests.get("https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=SYD&destinationLocationCode=" + res['iataCode'] +"&departureDate=2023-11-01&adults=" + str(int(adults)) + "&currencyCode=SGD&max=2", headers=headers)
+            dataTwo = requests.get("https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=SYD&destinationLocationCode=" + res['iataCode'] +"&departureDate=" + str(date) + "&adults=" + str(int(adults)) + "&currencyCode=SGD&max=2", headers=headers)
+            dataThree = requests.get("https://test.api.amadeus.com/v2/duty-of-care/diseases/covid19-area-report?countryCode=" + res['address']['countryCode'], headers=headers)
             st.text(dataTwo.json())
             resTwo = dataTwo.json()['data']
             for ansTwo in resTwo :
                 st.text("SGD " + ansTwo['price']['total'])
-            secondPrompt = "Plan me an itinerary of " + answer + "to do " + user_input +"and" + opp_input
+            secondPrompt = "Plan me an itinerary of " + answer + "to do " + user_input +"and" + opp_input +". Limit to 50 words each day for 5 days"
             completions = openai.ChatCompletion.create(model="gpt-4", messages=[
                             {"role": "assistant", 
                             "content": secondPrompt,
@@ -177,17 +198,43 @@ if authenticate == 'Login' :
             thirdResult = response2.choices[0].message.content
             st.text(thirdResult)
             thirdArray = find_long_and_lat(thirdResult)
-            for loc in thirdArray:
-                long, lat = loc[0], loc[1]
-                if ((long.isnumeric()) and (lat.isnumeric())):
+            mapData = []
+            for long, lat in thirdArray:
+                if ((isFloat(long)) and (isFloat(lat))):
+                    
                     st.text("Longtitude: " + long + ", Latitude: " + lat)
                     mama = requests.get("https://test.api.amadeus.com/v1/shopping/activities?longitude=" + long + "&latitude=" + lat + "&radius=100", headers=headers)
+                    i = 0
                     for ans in mama.json()['data'] :
+                        i += 1
+                        if i == 5 :
+                            break
                         st.text(ans['name'])
-                        st.image(ans['pictures'][0])
+                        if len(ans['pictures']) != 0:
+                            st.image(ans['pictures'][0])
                         if 'shortDescription' in ans:
                             components.html(ans['shortDescription'])
+                        mapData.append({
+                                'name': ans['name'],
+                                'latitude': lat,
+                                'longitude': long,
+                                'safe': str(dataThree.json()['data']['summary']['text']),
+                                'bookingLink': ans['bookingLink'],
+                                'price': ans['price']['amount']
+                        })
+            st.header("Map")
+
+            # Convert latitude and longitude columns to numeric format
+            dataMap = pd.DataFrame(mapData)
+            dataMap['latitude'] = pd.to_numeric(dataMap['latitude'])
+            dataMap['longitude'] = pd.to_numeric(dataMap['longitude'])
+            
+            st.write(dataMap)
+            st.session_state.mapData = mapData
+            
        
+
+
     if submit :
         user = auth.sign_in_with_email_and_password(email, password)
         bio = st.radio('Jump to', ['Home', 'Meet Up'])
