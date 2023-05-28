@@ -20,7 +20,7 @@ firebaseConfig = {
 base_url = "https://test.api.amadeus.com/v1/"
 
 
-openai.api_key = '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'
+openai.api_key = st.secrets['openai_key']
 firebase = pyrebase.initialize_app(firebaseConfig)
 auth = firebase.auth()
 
@@ -80,7 +80,7 @@ if authenticate == 'Login' :
     email = st.sidebar.text_input('Enter your email address')
     password = st.sidebar.text_input('Enter your password', type = 'password')
     submit = st.sidebar.button('Sign Up')
-    openai.api_key = st.secrets['api_secret']
+    openai.api_key = st.secrets['openai_key']
 
 
     st.subheader("AI Assistant : Streamlit + OpenAI: `stream` *argument*")
@@ -94,12 +94,13 @@ if authenticate == 'Login' :
     res_box = st.empty()
     if pressed :
         completions = openai.ChatCompletion.create(model="gpt-4", messages=[
-                                          {"role": "assistant", 
-                                           "content": chat_gpt,
-                                           }],
-                                          temperature=0.5,
-                                          max_tokens=6000,
-                                          frequency_penalty=0.0,)
+                            {"role": "assistant",
+                            "content": chat_gpt,
+                            }],
+                            temperature=0.5,
+                            max_tokens=6000,
+                            frequency_penalty=0.0,)
+        
         result = completions.choices[0].message.content
         array = result.split(", ")
         res_box.write(result)

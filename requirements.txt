@@ -1,3 +1,6 @@
 streamlit
 psycopg2-binary 
 python-dotenv
+openai
+pyrebase
+streamlit_pills
