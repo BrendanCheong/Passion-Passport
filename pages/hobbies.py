@@ -40,3 +40,4 @@ for i,row in dataMap.iterrows():
 st_data = st_folium(m, width=700)
 
 st.write("Hobbies")
+st.write("*Copyright © 2023 T(P)JC - Harry, Brendan, Vanessa, Ryan*") 

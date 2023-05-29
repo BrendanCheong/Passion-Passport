@@ -268,7 +268,9 @@ if authenticate == 'Login' :
 
 
         else :    
-            st.title("Welcome")    
+            st.title("Welcome") 
+
+st.write("*Copyright © 2023 T(P)JC - Harry, Brendan, Vanessa, Ryan*")   
 
 
              

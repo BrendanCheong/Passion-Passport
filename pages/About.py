@@ -126,4 +126,5 @@ elif selected == "References":
             - OpenAI API Documentation: https://openai.com/blog/openai-api 
             """)
 
+st.write("*Copyright © 2023 T(P)JC - Harry, Brendan, Vanessa, Ryan*") 
 
