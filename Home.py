@@ -11,18 +11,6 @@ import pycountry
 import pandas as pd
 import folium
 from streamlit_folium import st_folium, folium_static
-from PIL import Image
-import streamlit as st
-
-# You can always call this function where ever you want
-
-def add_logo(logo_path, width, height):
-    """Read and return a resized logo"""
-    logo = Image.open(logo_path)
-    modified_logo = logo.resize((width, height))
-    return modified_logo
-
-
 
 firebaseConfig = {
   "apiKey": "AIzaSyCgRqAR-Hr5yNeG31Qgd9ROgBpAOZqRtPc",
@@ -111,12 +99,8 @@ db = firebase.database()
 st.session_state.db = db
 storage = firebase.storage()
 
-st.set_page_config(page_title="PassionPassport", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
-st.sidebar.title("PassionPassport")
-st.sidebar.image("assets/pp_logo2.jpg", use_column_width=True)
-# Use the following line to include your style.css file
-st.markdown('<style>' + open('style.css').read() + '</style>', unsafe_allow_html=True)
 
+st.sidebar.title("Your Travelling App")
 
 
 # Authentication
@@ -152,15 +136,17 @@ if authenticate == 'Login' :
     password = st.sidebar.text_input('Enter your password', type = 'password')
     submit = st.sidebar.button('Sign Up')
     openai.api_key = st.secrets['openai_key']
-    st.subheader("Not sure where to travel? Plan an itinerary with us today!")
-    #st.subheader("AI Assistant : Streamlit + OpenAI: `stream` *argument*")
+    st.subheader("AI Assistant : Streamlit + OpenAI: `stream` *argument*")
     people_array = ""
-    opp_input = st.text_input("Your friend: ",placeholder = "Friends suggestion")
     date = st.date_input("Departure Date")
-    adults = st.number_input("Number of adults ")
-    for i in range(0, int(adults)) :
+    adults = st.number_input("Number of adults ", step=1, key="adult")
+    childrens = st.number_input("Number of childrens ", step=1, value=0, key="child")
+    childrens_string = ""
+    if childrens > 0 :
+        childrens_string = "&children=" + str(childrens)
+    for i in range(0, int(adults) + int(childrens)) :
         user_input = st.text_area("Person " + str(i) ,placeholder = "Your suggestion", key="input" + str(i))
-        people_array += "People " + str(i) + " likes to " + user_input + "."
+        people_array += "People " + str(i + 1) + " likes to " + user_input + "."
         chat_gpt = people_array + "Suggest 1 city according to these people in the format 'Bangkok'. City only "
     pressed = st.button('Submit')
         
@@ -181,14 +167,14 @@ if authenticate == 'Login' :
             data = requests.get("https://test.api.amadeus.com/v1/reference-data/locations/cities?keyword=" + answer, headers=headers)
             
             res = (data.json()['data'][0])
-            dataTwo = requests.get("https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=SYD&destinationLocationCode=" + res['iataCode'] +"&departureDate=" + str(date) + "&adults=" + str(int(adults)) + "&currencyCode=SGD&max=2", headers=headers)
+            dataTwo = requests.get("https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=SYD&destinationLocationCode=" + res['iataCode'] +"&departureDate=" + str(date) + "&adults=" + str(int(adults)) + childrens_string + "&currencyCode=SGD&max=2", headers=headers)
             dataThree = requests.get("https://test.api.amadeus.com/v2/duty-of-care/diseases/covid19-area-report?countryCode=" + res['address']['countryCode'], headers=headers)
 
             resTwo = dataTwo.json()['data']
             st.session_state.flight = resTwo
             for ansTwo in resTwo :
                 st.text("SGD " + ansTwo['price']['total'])
-            secondPrompt = "Plan me an itinerary of " + answer + "to do " + user_input +"and" + opp_input +". Limit to 50 words each day for 5 days"
+            secondPrompt = "Plan me an itinerary of " + answer + "to do if" + people_array  + ". Limit to 50 words each day for 5 days"
             completions = openai.ChatCompletion.create(model="gpt-4", messages=[
                             {"role": "assistant", 
                             "content": secondPrompt,
@@ -217,39 +203,44 @@ if authenticate == 'Login' :
             mapData = []
             for long, lat in thirdArray:
                 if ((isFloat(long)) and (isFloat(lat))):
+                    try :
+                        i = 0
+                        mama = requests.get("https://test.api.amadeus.com/v1/shopping/activities?longitude=" + long + "&latitude=" + lat + "&radius=100", headers=headers)
+                        for ans in mama.json()['data'] :
+                            i += 1
+                            if i == 5 :
+                                break
+                            st.text(ans['name'])
+                            if len(ans['pictures']) != 0:
+                                st.image(ans['pictures'][0])
+                            if 'shortDescription' in ans:
+                                components.html(ans['shortDescription'])
+                            object = {
+                                    'name': ans['name'],
+                                    'latitude': lat,
+                                    'longitude': long,
+                                    'safe': str(dataThree.json()['data']['summary']['text']),
+                                    'bookingLink': ans['bookingLink'],
+                                    'price': ans['price']['amount']
+                            }
+                            if object not in mapData :
+                                mapData.append(object)
+                    except :
+                        continue
                     
-                    st.text("Longtitude: " + long + ", Latitude: " + lat)
-                    mama = requests.get("https://test.api.amadeus.com/v1/shopping/activities?longitude=" + long + "&latitude=" + lat + "&radius=100", headers=headers)
-                    i = 0
-                    for ans in mama.json()['data'] :
-                        i += 1
-                        if i == 5 :
-                            break
-                        st.text(ans['name'])
-                        if len(ans['pictures']) != 0:
-                            st.image(ans['pictures'][0])
-                        if 'shortDescription' in ans:
-                            components.html(ans['shortDescription'])
-                        object = {
-                                'name': ans['name'],
-                                'latitude': lat,
-                                'longitude': long,
-                                'safe': str(dataThree.json()['data']['summary']['text']),
-                                'bookingLink': ans['bookingLink'],
-                                'price': ans['price']['amount']
-                        }
-                        if object not in mapData :
-                            mapData.append(object)
+                    
+                    
+            try:
+                st.header("Analysis")
 
-            st.header("Analysis")
-
-            # Convert latitude and longitude columns to numeric format
-            dataMap = pd.DataFrame(mapData)
-            dataMap['latitude'] = pd.to_numeric(dataMap['latitude'])
-            dataMap['longitude'] = pd.to_numeric(dataMap['longitude'])
-            
-            st.write(dataMap)
-            st.session_state.mapData = mapData
+                # Convert latitude and longitude columns to numeric format
+                dataMap = pd.DataFrame(mapData)
+                dataMap['latitude'] = pd.to_numeric(dataMap['latitude'])
+                dataMap['longitude'] = pd.to_numeric(dataMap['longitude'])
+                
+                st.write(dataMap)
+                st.session_state.mapData = mapData
+            except : st.info("No detected good places. Run continue again")
             
        
 
@@ -268,9 +259,7 @@ if authenticate == 'Login' :
 
 
         else :    
-            st.title("Welcome") 
-
-st.write("*Copyright © 2023 T(P)JC - Harry, Brendan, Vanessa, Ryan*")   
+            st.title("Welcome")    
 
 
              

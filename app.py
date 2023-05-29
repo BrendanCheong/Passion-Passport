@@ -141,9 +141,13 @@ if authenticate == 'Login' :
     date = st.date_input("Departure Date")
     adults = st.number_input("Number of adults ", step=1, key="adult")
     childrens = st.number_input("Number of childrens ", step=1, value=0, key="child")
+    hotelDays = st.number_input("Number of Days ", step=1, value=0, key="hotel")
+    hotel_string = ""
     childrens_string = ""
     if childrens > 0 :
         childrens_string = "&children=" + str(childrens)
+    if hotelDays > 0 :
+        hotel_string = "&children=" + str(childrens)
     for i in range(0, int(adults) + int(childrens)) :
         user_input = st.text_area("Person " + str(i) ,placeholder = "Your suggestion", key="input" + str(i))
         people_array += "People " + str(i + 1) + " likes to " + user_input + "."
@@ -169,7 +173,7 @@ if authenticate == 'Login' :
             res = (data.json()['data'][0])
             dataTwo = requests.get("https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=SYD&destinationLocationCode=" + res['iataCode'] +"&departureDate=" + str(date) + "&adults=" + str(int(adults)) + childrens_string + "&currencyCode=SGD&max=2", headers=headers)
             dataThree = requests.get("https://test.api.amadeus.com/v2/duty-of-care/diseases/covid19-area-report?countryCode=" + res['address']['countryCode'], headers=headers)
-
+            st.write(dataTwo.json())
             resTwo = dataTwo.json()['data']
             st.session_state.flight = resTwo
             for ansTwo in resTwo :
@@ -225,7 +229,8 @@ if authenticate == 'Login' :
                                 'price': ans['price']['amount']
                         }
                         if object not in mapData :
-                            mapData.append(object)
+                            if object['name'] in mapData.values() :
+                                mapData.append(object)
 
             st.header("Analysis")
 

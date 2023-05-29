@@ -6,14 +6,24 @@ import pandas as pd
 
 try : 
     st.set_page_config(page_title="PassionPassport - Price", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
+    currentDB = st.session_state.db.child(st.session_state.user['localId'])
     if st.session_state.flight is not None :
         flight = st.session_state.flight
         flights = []
+        # st.write(currentDB.child['ticket_price'].get())
+        flightsFirebase = currentDB.child('ticket_price').get().val().values()
+        st.write(flightsFirebase)
         for flightDetail in flight :
             flightObject = {
-                'oneWay': str(flightDetail['oneWay']),
+                'oneWay': flightDetail["oneWay"],
+                "lastTicketingDate": flightDetail["lastTicketingDate"],
+                'seats_available': flightDetail["numberOfBookableSeats"],
+                'price': flightDetail['price']['total']
+
             }
-            flight.append(flightObject)
+            flights.append(flightObject)
+        
+            currentDB.child(st.session_state.user['localId']).child('ticket_price').push(flightObject)
         flightData = pd.DataFrame(flights)
         st.write(flightData)
 except:

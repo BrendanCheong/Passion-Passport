@@ -115,7 +115,7 @@ elif selected == "Our Team":
             st.markdown("""
             Role: Back-end
 
-            `Python` `HTML` `CSS` `Streamlit` `Firebase`
+            `CPP` `Java` `Python` `HTML` `CSS` `Javascript` `Streamlit` `Firebase`
             """)
 
 elif selected == "References":
