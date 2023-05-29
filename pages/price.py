@@ -7,15 +7,15 @@ import pandas as pd
 try : 
     st.set_page_config(page_title="PassionPassport - Price", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
     currentDB = st.session_state.db.child(st.session_state.user['localId'])
-    if st.session_state.flight is not None :
+    flights = []
+    # st.write(currentDB.child['ticket_price'].get())
+    flightsFirebase = currentDB.child('ticket_price').get().val().values()
+    flights.extend(flightsFirebase)
+    if 'flight' in st.session_state :
         flight = st.session_state.flight
-        flights = []
-        # st.write(currentDB.child['ticket_price'].get())
-        flightsFirebase = currentDB.child('ticket_price').get().val().values()
-        st.write(flightsFirebase)
         for flightDetail in flight :
             flightObject = {
-                'oneWay': flightDetail["oneWay"],
+                'oneWay': str(flightDetail["oneWay"]),
                 "lastTicketingDate": flightDetail["lastTicketingDate"],
                 'seats_available': flightDetail["numberOfBookableSeats"],
                 'price': flightDetail['price']['total']
@@ -24,10 +24,10 @@ try :
             flights.append(flightObject)
         
             currentDB.child(st.session_state.user['localId']).child('ticket_price').push(flightObject)
-        flightData = pd.DataFrame(flights)
-        st.write(flightData)
-except:
-    st.info("You need to be logged in")
+    flightData = pd.DataFrame(flights)
+    st.write(flightData)
+except Exception as e:
+    st.info(e)
 
 st.sidebar.title("PassionPassport")
 st.sidebar.image("assets/pp_logo2.jpg", use_column_width=True)

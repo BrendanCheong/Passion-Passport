@@ -12,6 +12,7 @@ import pandas as pd
 import folium
 from streamlit_folium import st_folium, folium_static
 
+
 firebaseConfig = {
   "apiKey": "AIzaSyCgRqAR-Hr5yNeG31Qgd9ROgBpAOZqRtPc",
   "authDomain": "lifehack2023-f362e.firebaseapp.com",
@@ -74,6 +75,9 @@ def find_long_and_lat(s):
 
 base_url = "https://test.api.amadeus.com/v1/"
 
+st.markdown(""" <style> .main {
+font-size:50px ; font-family: 'Cooper Black'; color: #FF9633;} 
+</style> """, unsafe_allow_html=True)
 
 openai.api_key = st.secrets['openai_key']
 firebase = pyrebase.initialize_app(firebaseConfig)
@@ -138,20 +142,28 @@ if authenticate == 'Login' :
     openai.api_key = st.secrets['openai_key']
     st.subheader("AI Assistant : Streamlit + OpenAI: `stream` *argument*")
     people_array = ""
-    date = st.date_input("Departure Date")
-    adults = st.number_input("Number of adults ", step=1, key="adult")
+    adults = st.number_input("Number of adults ", step=1, value=1, key="adult")
     childrens = st.number_input("Number of childrens ", step=1, value=0, key="child")
     childrens_string = ""
     if childrens > 0 :
         childrens_string = "&children=" + str(childrens)
     for i in range(0, int(adults) + int(childrens)) :
-        user_input = st.text_area("Person " + str(i) ,placeholder = "Your suggestion", key="input" + str(i))
+        user_input = st.text_area("Person " + str(i + 1) ,placeholder = "Your suggestion", key="input" + str(i))
         people_array += "People " + str(i + 1) + " likes to " + user_input + "."
         chat_gpt = people_array + "Suggest 1 city according to these people in the format 'Bangkok'. City only "
-    pressed = st.button('Submit')
+    date = st.date_input("Departure Date")
+    
+    hotelDays = st.number_input("Number of Days ", step=1, value=1, key="hotel")
+    hotel_string = pd.to_datetime(date) + pd.DateOffset(days=hotelDays)
+    date_string = "&returnDate=" + str(hotel_string.date().strftime("%Y-%m-%d"))
+    
+    current_date_valid = datetime.now().date() >= date
+    st.text(str(current_date_valid))
+    pressed = st.button('Submit', disabled=current_date_valid)
         
     res_box = st.empty()
-    if pressed :
+    if pressed:
+        st.text("LOL")
         completions = openai.ChatCompletion.create(model="gpt-4", messages=[
                             {"role": "assistant",
                             "content": chat_gpt,
@@ -167,14 +179,14 @@ if authenticate == 'Login' :
             data = requests.get("https://test.api.amadeus.com/v1/reference-data/locations/cities?keyword=" + answer, headers=headers)
             
             res = (data.json()['data'][0])
-            dataTwo = requests.get("https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=SYD&destinationLocationCode=" + res['iataCode'] +"&departureDate=" + str(date) + "&adults=" + str(int(adults)) + childrens_string + "&currencyCode=SGD&max=2", headers=headers)
+            dataTwo = requests.get("https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=SYD&destinationLocationCode=" + res['iataCode'] +"&departureDate=" + str(date) + "&adults=" + str(int(adults)) + childrens_string + date_string + "&currencyCode=SGD&max=2", headers=headers)
             dataThree = requests.get("https://test.api.amadeus.com/v2/duty-of-care/diseases/covid19-area-report?countryCode=" + res['address']['countryCode'], headers=headers)
-
+            st.session_state.covid = dataThree.json()['data']
             resTwo = dataTwo.json()['data']
             st.session_state.flight = resTwo
             for ansTwo in resTwo :
                 st.text("SGD " + ansTwo['price']['total'])
-            secondPrompt = "Plan me an itinerary of " + answer + "to do if" + people_array  + ". Limit to 50 words each day for 5 days"
+            secondPrompt = "Plan me an itinerary of " + answer + "to do if" + people_array  + ". Limit to 50 words each day for " + str(hotelDays) +" days"
             completions = openai.ChatCompletion.create(model="gpt-4", messages=[
                             {"role": "assistant", 
                             "content": secondPrompt,
@@ -183,7 +195,7 @@ if authenticate == 'Login' :
                             max_tokens=1000,
                             frequency_penalty=0.0,)
             secondResult = completions.choices[0].message.content
-            st.text(secondResult)
+            st.write(secondResult)
             st.session_state.itin = secondResult
             thirdResult = ''
             response2 = openai.ChatCompletion.create(
@@ -207,14 +219,22 @@ if authenticate == 'Login' :
                         i = 0
                         mama = requests.get("https://test.api.amadeus.com/v1/shopping/activities?longitude=" + long + "&latitude=" + lat + "&radius=100", headers=headers)
                         for ans in mama.json()['data'] :
-                            i += 1
-                            if i == 5 :
-                                break
-                            st.text(ans['name'])
-                            if len(ans['pictures']) != 0:
-                                st.image(ans['pictures'][0])
-                            if 'shortDescription' in ans:
-                                components.html(ans['shortDescription'])
+                            components.html("<h1>" + ans['name'] + "<h1>")
+
+
+                            # Create two columns with different widths
+                            col1, col2 = st.beta_columns([1, 1])
+
+                            # Display the image in the first column
+                            with col1:
+                                if len(ans['pictures']) != 0:
+                                    st.image(ans['pictures'][0], width=400)  # Adjust the width as per your requirement
+
+                            # Display other content in the second column
+                            with col2:
+                                if 'shortDescription' in ans:
+                                    components.html(ans['shortDescription'])
+
                             object = {
                                     'name': ans['name'],
                                     'latitude': lat,
@@ -227,9 +247,9 @@ if authenticate == 'Login' :
                                 mapData.append(object)
                     except :
                         continue
-                    
-                    
-                    
+            
+            
+            
             try:
                 st.header("Analysis")
 
@@ -238,24 +258,25 @@ if authenticate == 'Login' :
                 dataMap['latitude'] = pd.to_numeric(dataMap['latitude'])
                 dataMap['longitude'] = pd.to_numeric(dataMap['longitude'])
                 
-                st.write(dataMap)
+                #st.write(dataMap)
+                st.dataframe(dataMap)
                 st.session_state.mapData = mapData
-            except : st.info("No detected good places. Run continue again")
-            
-       
+            except Exception as e : 
+                st.info(e)
 
 
     if submit :
-        user = auth.sign_in_with_email_and_password(email, password)
-        bio = st.radio('Jump to', ['Home', 'Meet Up'])
-        username = db.child(user['localId']).child("Handle").get()
-        st.session_state.name = username
-        st.session_state.user = user
-        if user is not None :
-            st.session_state.authenticated = True
-        if bio == 'Home' :
-            st.title("Home")
-           
+        st.info("SUBMIT")
+        try: 
+            user = auth.sign_in_with_email_and_password(email, password)
+            username = db.child(user['localId']).child("Handle").get()
+            st.session_state.name = username
+            st.session_state.user = user
+            if user is not None :
+                st.session_state.authenticated = True
+            st.success("Successfully signed in")
+        except Exception as e : 
+                st.info(e)
 
 
         else :    

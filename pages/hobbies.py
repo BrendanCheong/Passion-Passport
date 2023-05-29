@@ -12,32 +12,39 @@ st.sidebar.image("assets/pp_logo2.jpg", use_column_width=True)
 # Use the following line to include your style.css file
 st.markdown('<style>' + open('style.css').read() + '</style>', unsafe_allow_html=True)
 
-mapData = st.session_state.mapData
-st.write(mapData)
-dataMap = pd.DataFrame(mapData)
-dataMap['latitude'] = pd.to_numeric(dataMap['latitude'])
-dataMap['longitude'] = pd.to_numeric(dataMap['longitude'])
-m = folium.Map(location=[dataMap.latitude.mean(), dataMap.longitude.mean()], 
-                 zoom_start=12, control_scale=True)
+try :
+    st.header("Map Data")
+    st.text("To be able to see something here, you need to do the travel analysis first!")
+    if 'mapData' in st.session_state :
+        mapData = st.session_state.mapData
+        st.write(mapData)
+        dataMap = pd.DataFrame(mapData)
+        dataMap['latitude'] = pd.to_numeric(dataMap['latitude'])
+        dataMap['longitude'] = pd.to_numeric(dataMap['longitude'])
+        m = folium.Map(location=[dataMap.latitude.mean(), dataMap.longitude.mean()], 
+                        zoom_start=12, control_scale=True)
 
-#Loop through each row in the dataframe
-for i,row in dataMap.iterrows():
-    #Setup the content of the popup
-    html = f'''
-        <p>{str(row["name"])}<p/>
-        <p>{str(row['safe'])}</p>
-        '''
-    iframe = folium.IFrame(html)
-    
-    
-    #Initialise the popup using the iframe
-    popup = folium.Popup(iframe, min_width=300, max_width=300)
-    
-    #Add each row to the map
-    folium.Marker(location=[row['latitude'],row['longitude']],
-                  popup = popup, c=row['name']).add_to(m)
+        #Loop through each row in the dataframe
+        for i,row in dataMap.iterrows():
+            #Setup the content of the popup
+            html = f'''
+                <p>{str(row["name"])}<p/>
+                <p>{str(row['safe'])}</p>
+                '''
+            iframe = folium.IFrame(html)
+            
+            
+            #Initialise the popup using the iframe
+            popup = folium.Popup(iframe, min_width=300, max_width=300)
+            
+            #Add each row to the map
+            folium.Marker(location=[row['latitude'],row['longitude']],
+                        popup = popup, c=row['name']).add_to(m)
 
-st_data = st_folium(m, width=700)
+        st_data = st_folium(m, width=700)
+except Exception as e :
+    st.error(e)
+
 
 st.write("Hobbies")
 st.write("*Copyright © 2023 T(P)JC - Harry, Brendan, Vanessa, Ryan*") 
