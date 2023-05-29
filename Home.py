@@ -71,7 +71,9 @@ def find_long_and_lat(s):
 
 
 
-
+st.set_page_config(page_title="PassionPassport - Home", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
+st.sidebar.title("PassionPassport")
+st.sidebar.image("assets/pp_logo2.jpg", use_column_width=True)
 
 base_url = "https://test.api.amadeus.com/v1/"
 
@@ -104,7 +106,6 @@ st.session_state.db = db
 storage = firebase.storage()
 
 
-st.sidebar.title("Your Travelling App")
 
 
 # Authentication
@@ -138,18 +139,18 @@ if authenticate == 'Signup':
 if authenticate == 'Login' :
     email = st.sidebar.text_input('Enter your email address')
     password = st.sidebar.text_input('Enter your password', type = 'password')
-    submit = st.sidebar.button('Sign Up')
+    submit = st.sidebar.button('Log In')
     openai.api_key = st.secrets['openai_key']
-    st.subheader("AI Assistant : Streamlit + OpenAI: `stream` *argument*")
+    st.subheader("Not sure where to travel? Plan an itinerary with us today!")
     people_array = ""
-    adults = st.number_input("Number of adults ", step=1, value=1, key="adult")
-    childrens = st.number_input("Number of childrens ", step=1, value=0, key="child")
+    adults = st.number_input("Number of Adults ", step=1, value=1, key="adult")
+    childrens = st.number_input("Number of Children ", step=1, value=0, key="child")
     childrens_string = ""
     if childrens > 0 :
         childrens_string = "&children=" + str(childrens)
     for i in range(0, int(adults) + int(childrens)) :
-        user_input = st.text_area("Person " + str(i + 1) ,placeholder = "Your suggestion", key="input" + str(i))
-        people_array += "People " + str(i + 1) + " likes to " + user_input + "."
+        user_input = st.text_area("Person " + str(i + 1) + "'s Hobbies",placeholder = "Your suggestion", key="input" + str(i))
+        people_array += "Person " + str(i + 1) + " likes to " + user_input + "."
         chat_gpt = people_array + "Suggest 1 city according to these people in the format 'Bangkok'. City only "
     date = st.date_input("Departure Date")
     
@@ -163,7 +164,7 @@ if authenticate == 'Login' :
         
     res_box = st.empty()
     if pressed:
-        st.text("LOL")
+        st.text("Loading...")
         completions = openai.ChatCompletion.create(model="gpt-4", messages=[
                             {"role": "assistant",
                             "content": chat_gpt,
@@ -223,12 +224,12 @@ if authenticate == 'Login' :
 
 
                             # Create two columns with different widths
-                            col1, col2 = st.beta_columns([1, 1])
+                            col1, col2 = st.columns([1, 2.5])
 
                             # Display the image in the first column
                             with col1:
                                 if len(ans['pictures']) != 0:
-                                    st.image(ans['pictures'][0], width=400)  # Adjust the width as per your requirement
+                                    st.image(ans['pictures'][0], width=200)  # Adjust the width as per your requirement
 
                             # Display other content in the second column
                             with col2:
