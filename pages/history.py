@@ -10,3 +10,6 @@ except :
 
 st.sidebar.title("PassionPassport")
 st.sidebar.image("assets/pp_logo2.jpg", use_column_width=True)
+
+# Use the following line to include your style.css file
+st.markdown('<style>' + open('style.css').read() + '</style>', unsafe_allow_html=True)

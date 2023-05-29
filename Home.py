@@ -22,6 +22,8 @@ def add_logo(logo_path, width, height):
     modified_logo = logo.resize((width, height))
     return modified_logo
 
+
+
 firebaseConfig = {
   "apiKey": "AIzaSyCgRqAR-Hr5yNeG31Qgd9ROgBpAOZqRtPc",
   "authDomain": "lifehack2023-f362e.firebaseapp.com",
@@ -112,6 +114,8 @@ storage = firebase.storage()
 st.set_page_config(page_title="PassionPassport", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
 st.sidebar.title("PassionPassport")
 st.sidebar.image("assets/pp_logo2.jpg", use_column_width=True)
+# Use the following line to include your style.css file
+st.markdown('<style>' + open('style.css').read() + '</style>', unsafe_allow_html=True)
 
 
 

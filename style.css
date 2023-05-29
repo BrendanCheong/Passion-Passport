@@ -1,0 +1,13 @@
+code {
+    background-color: #fddc5c !important;
+    font-family: 'Source Code Pro'!important;
+    font-size: 12px !important;
+    color: #800020 !important;
+    padding: 2px !important;
+    border-radius: 4px !important;
+}
+
+/* Hide Streamlit branding */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
