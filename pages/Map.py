@@ -5,7 +5,7 @@ import folium
 from streamlit_folium import st_folium, folium_static
 
 
-st.set_page_config(page_title="PassionPassport - Hobbies", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
+st.set_page_config(page_title="PassionPassport - Map", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
 st.sidebar.title("PassionPassport")
 st.sidebar.image("assets/pp_logo2.jpg", use_column_width=True)
 
@@ -15,9 +15,9 @@ st.markdown('<style>' + open('style.css').read() + '</style>', unsafe_allow_html
 try :
     st.header("Map Data")
     st.text("To be able to see something here, you need to do the travel analysis first!")
+
     if 'mapData' in st.session_state :
         mapData = st.session_state.mapData
-        st.write(mapData)
         dataMap = pd.DataFrame(mapData)
         dataMap['latitude'] = pd.to_numeric(dataMap['latitude'])
         dataMap['longitude'] = pd.to_numeric(dataMap['longitude'])
