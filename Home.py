@@ -194,8 +194,9 @@ if authenticate == 'Login' :
             data = requests.get("https://test.api.amadeus.com/v1/reference-data/locations/cities?keyword=" + answer, headers=headers)
             
             res = (data.json()['data'][0])
-            dataTwo = requests.get("https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=" + option[0:4] +"&destinationLocationCode=" + res['iataCode'] +"&departureDate=" + str(date) + "&adults=" + str(int(adults)) + childrens_string + date_string + "&currencyCode=SGD&max=2", headers=headers)
+            dataTwo = requests.get("https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=" + option[0:3] +"&destinationLocationCode=" + res['iataCode'] +"&departureDate=" + str(date) + "&adults=" + str(int(adults)) + childrens_string + date_string + "&currencyCode=SGD&max=2", headers=headers)
             dataThree = requests.get("https://test.api.amadeus.com/v2/duty-of-care/diseases/covid19-area-report?countryCode=" + res['address']['countryCode'], headers=headers)
+            
             st.session_state.covid = dataThree.json()['data']
             resTwo = dataTwo.json()['data']
             st.session_state.flight = resTwo
@@ -250,7 +251,7 @@ if authenticate == 'Login' :
                             # Display other content in the second column
                             with col2:
                                 if 'shortDescription' in ans:
-                                    components.html(ans['shortDescription'])
+                                    components.html(ans['shortDescription'], height=200)
 
                             object = {
                                     'name': ans['name'],
