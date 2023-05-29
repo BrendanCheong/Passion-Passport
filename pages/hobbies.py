@@ -5,9 +5,9 @@ import folium
 from streamlit_folium import st_folium, folium_static
 
 
-st.set_page_config(page_title="Travel App - Hobbies", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
-
-st.header("Travel App - Hobbies")
+st.set_page_config(page_title="PassionPassport - Hobbies", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
+st.sidebar.title("PassionPassport")
+st.sidebar.image("assets/pp_logo2.jpg", use_column_width=True)
 mapData = st.session_state.mapData
 st.write(mapData)
 dataMap = pd.DataFrame(mapData)

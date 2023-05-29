@@ -5,7 +5,7 @@ import pandas as pd
 
 
 try : 
-    st.set_page_config(page_title="Travel App - Hobbies", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
+    st.set_page_config(page_title="PassionPassport - Price", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
     if st.session_state.flight is not None :
         flight = st.session_state.flight
         flights = []
@@ -18,5 +18,8 @@ try :
         st.write(flightData)
 except:
     st.info("You need to be logged in")
+
+st.sidebar.title("PassionPassport")
+st.sidebar.image("assets/pp_logo2.jpg", use_column_width=True)
     
 
