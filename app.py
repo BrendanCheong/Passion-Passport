@@ -138,12 +138,15 @@ if authenticate == 'Login' :
     openai.api_key = st.secrets['openai_key']
     st.subheader("AI Assistant : Streamlit + OpenAI: `stream` *argument*")
     people_array = ""
-    opp_input = st.text_input("Your friend: ",placeholder = "Friends suggestion")
     date = st.date_input("Departure Date")
-    adults = st.number_input("Number of adults ")
-    for i in range(0, int(adults)) :
+    adults = st.number_input("Number of adults ", step=1, key="adult")
+    childrens = st.number_input("Number of childrens ", step=1, value=0, key="child")
+    childrens_string = ""
+    if childrens > 0 :
+        childrens_string = "&children=" + str(childrens)
+    for i in range(0, int(adults) + int(childrens)) :
         user_input = st.text_area("Person " + str(i) ,placeholder = "Your suggestion", key="input" + str(i))
-        people_array += "People " + str(i) + " likes to " + user_input + "."
+        people_array += "People " + str(i + 1) + " likes to " + user_input + "."
         chat_gpt = people_array + "Suggest 1 city according to these people in the format 'Bangkok'. City only "
     pressed = st.button('Submit')
         
@@ -164,14 +167,14 @@ if authenticate == 'Login' :
             data = requests.get("https://test.api.amadeus.com/v1/reference-data/locations/cities?keyword=" + answer, headers=headers)
             
             res = (data.json()['data'][0])
-            dataTwo = requests.get("https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=SYD&destinationLocationCode=" + res['iataCode'] +"&departureDate=" + str(date) + "&adults=" + str(int(adults)) + "&currencyCode=SGD&max=2", headers=headers)
+            dataTwo = requests.get("https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=SYD&destinationLocationCode=" + res['iataCode'] +"&departureDate=" + str(date) + "&adults=" + str(int(adults)) + childrens_string + "&currencyCode=SGD&max=2", headers=headers)
             dataThree = requests.get("https://test.api.amadeus.com/v2/duty-of-care/diseases/covid19-area-report?countryCode=" + res['address']['countryCode'], headers=headers)
 
             resTwo = dataTwo.json()['data']
             st.session_state.flight = resTwo
             for ansTwo in resTwo :
                 st.text("SGD " + ansTwo['price']['total'])
-            secondPrompt = "Plan me an itinerary of " + answer + "to do " + user_input +"and" + opp_input +". Limit to 50 words each day for 5 days"
+            secondPrompt = "Plan me an itinerary of " + answer + "to do if" + people_array  + ". Limit to 50 words each day for 5 days"
             completions = openai.ChatCompletion.create(model="gpt-4", messages=[
                             {"role": "assistant", 
                             "content": secondPrompt,
