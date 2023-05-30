@@ -4,3 +4,4 @@ python-dotenv
 openai
 pyrebase
 streamlit_pills
+beautifulsoup4

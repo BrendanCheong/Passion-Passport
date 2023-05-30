@@ -14,7 +14,8 @@ st.markdown('<style>' + open('style.css').read() + '</style>', unsafe_allow_html
 
 try :
     st.header("Map Data")
-    st.text("To be able to see something here, you need to do the travel analysis first!")
+    st.write("*A detailed map that displays locations to carry out your recommended activities!*")
+    st.text("To view information here, please create an itinerary on our home page first!")
     if 'mapData' in st.session_state :
         mapData = st.session_state.mapData
         st.write(mapData)
@@ -46,5 +47,5 @@ except Exception as e :
     st.error(e)
 
 
-st.write("Hobbies")
+#st.write("Hobbies")
 st.write("*Copyright © 2023 T(P)JC - Harry, Brendan, Vanessa, Ryan*") 
