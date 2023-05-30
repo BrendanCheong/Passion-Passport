@@ -5,12 +5,16 @@ import streamlit.components.v1 as components
 st.subheader("Saved Itineraries")
 try :
 <<<<<<< HEAD
+<<<<<<< HEAD
     st.set_page_config(page_title="PassionPassport - History", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
 =======
     st.set_page_config(page_title="PassionPassport - About Us", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
     st.subheader("Your saved itinierary")
     st.write("Don't worry you can always save your current itinerary in the result tab")
 >>>>>>> e94a37745e14e69a860e6ea36beab09e3b322009
+=======
+    st.set_page_config(page_title="PassionPassport - History", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
+>>>>>>> 783eeb382ed13569874106dedaef67b36914ccbe
     st.write(list(st.session_state.db.child(st.session_state.user['localId']).child("itinerary").get().val().values())[0])
 except :
     st.error("You need to be logged in")
