@@ -14,18 +14,8 @@ st.markdown('<style>' + open('style.css').read() + '</style>', unsafe_allow_html
 
 try :
     st.header("Map Data")
-<<<<<<< HEAD
-<<<<<<< HEAD:pages/hobbies.py
     st.write("*A detailed map that displays locations to carry out your recommended activities!*")
     st.text("To view information here, please create an itinerary on our home page first!")
-=======
-    st.text("To be able to see something here, you need to do the travel analysis first!")
-
->>>>>>> e94a37745e14e69a860e6ea36beab09e3b322009:pages/Map.py
-=======
-    st.write("*A detailed map that displays locations to carry out your recommended activities!*")
-    st.text("To view information here, please create an itinerary on our home page first!")
->>>>>>> 783eeb382ed13569874106dedaef67b36914ccbe
     if 'mapData' in st.session_state :
         mapData = st.session_state.mapData
         dataMap = pd.DataFrame(mapData)

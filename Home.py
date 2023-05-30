@@ -138,17 +138,6 @@ if authenticate == 'Signup':
 if authenticate == 'Login' :
     email = st.sidebar.text_input('Enter your email address')
     password = st.sidebar.text_input('Enter your password', type = 'password')
-<<<<<<< HEAD
-<<<<<<< HEAD
-    submit = st.sidebar.button('Log In')
-    openai.api_key = st.secrets['openai_key']
-    st.subheader("Not sure where to travel? Plan an itinerary with us today!")
-    people_array = ""
-    adults = st.number_input("Number of Adults ", step=1, value=1, key="adult")
-    childrens = st.number_input("Number of Children ", step=1, value=0, key="child")
-=======
-=======
->>>>>>> 783eeb382ed13569874106dedaef67b36914ccbe
     submit = st.sidebar.button('Sign Up')
     if submit :
         try: 
@@ -171,30 +160,15 @@ if authenticate == 'Login' :
     option = st.selectbox('Depart from',options=getIata())[0:4]
     adults = st.number_input("Number of adults ", step=1, value=1, key="adult")
     childrens = st.number_input("Number of childrens ", step=1, value=0, key="child")
-<<<<<<< HEAD
->>>>>>> e94a37745e14e69a860e6ea36beab09e3b322009
-=======
->>>>>>> 783eeb382ed13569874106dedaef67b36914ccbe
     childrens_string = ""
     if childrens > 0 :
         childrens_string = "&children=" + str(childrens)
     st.subheader("Preference Indicator")
     st.write("Sample answer: Hike the mountain, swim in the beach, be in a cold country")
     for i in range(0, int(adults) + int(childrens)) :
-<<<<<<< HEAD
-<<<<<<< HEAD
-        user_input = st.text_area("Person " + str(i + 1) + "'s Hobbies",placeholder = "Your suggestion", key="input" + str(i))
-        people_array += "Person " + str(i + 1) + " likes to " + user_input + "."
-=======
         user_input = st.text_area("Interest of Person " + str(i + 1) ,placeholder = "Your suggestion", key="input" + str(i))
         st.write("Tell us what you like to do, your hobby, your interest, your preference")
         people_array += "People " + str(i + 1) + " likes to " + user_input + "."
->>>>>>> e94a37745e14e69a860e6ea36beab09e3b322009
-=======
-        user_input = st.text_area("Interest of Person " + str(i + 1) ,placeholder = "Your suggestion", key="input" + str(i))
-        st.write("Tell us what you like to do, your hobby, your interest, your preference")
-        people_array += "People " + str(i + 1) + " likes to " + user_input + "."
->>>>>>> 783eeb382ed13569874106dedaef67b36914ccbe
         chat_gpt = people_array + "Suggest 1 city according to these people in the format 'Bangkok'. City only "
     date = st.date_input("Departure Date *(must be after this date)")
     
@@ -207,14 +181,6 @@ if authenticate == 'Login' :
         
     res_box = st.empty()
     if pressed:
-<<<<<<< HEAD
-<<<<<<< HEAD
-        st.text("Loading...")
-=======
->>>>>>> e94a37745e14e69a860e6ea36beab09e3b322009
-=======
-        st.text("Loading...")
->>>>>>> 783eeb382ed13569874106dedaef67b36914ccbe
         completions = openai.ChatCompletion.create(model="gpt-4", messages=[
                             {"role": "assistant",
                             "content": chat_gpt,
@@ -230,9 +196,8 @@ if authenticate == 'Login' :
             data = requests.get("https://test.api.amadeus.com/v1/reference-data/locations/cities?keyword=" + answer, headers=headers)
             
             res = (data.json()['data'][0])
-            dataTwo = requests.get("https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=" + option[0:3] +"&destinationLocationCode=" + res['iataCode'] +"&departureDate=" + str(date) + "&adults=" + str(int(adults)) + childrens_string + date_string + "&currencyCode=SGD&max=2", headers=headers)
+            dataTwo = requests.get("https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=" + option[0:4] +"&destinationLocationCode=" + res['iataCode'] +"&departureDate=" + str(date) + "&adults=" + str(int(adults)) + childrens_string + date_string + "&currencyCode=SGD&max=2", headers=headers)
             dataThree = requests.get("https://test.api.amadeus.com/v2/duty-of-care/diseases/covid19-area-report?countryCode=" + res['address']['countryCode'], headers=headers)
-            
             st.session_state.covid = dataThree.json()['data']
             resTwo = dataTwo.json()['data']
             st.session_state.flight = resTwo
@@ -277,28 +242,12 @@ if authenticate == 'Login' :
                         for ans in mama.json()['data'] :
                             components.html('<h2 style="font-weight: 800; font-size: 16px; font-family: sans-serif;">' + ans['name'] + "</h2>")
                             # Create two columns with different widths
-<<<<<<< HEAD
-<<<<<<< HEAD
                             col1, col2 = st.columns([1, 2.5])
-=======
-                            col1, col2 = st.columns([1, 1])
->>>>>>> e94a37745e14e69a860e6ea36beab09e3b322009
-=======
-                            col1, col2 = st.columns([1, 1])
->>>>>>> 783eeb382ed13569874106dedaef67b36914ccbe
 
                             # Display the image in the first column
                             with col1:
                                 if len(ans['pictures']) != 0:
-<<<<<<< HEAD
-<<<<<<< HEAD
                                     st.image(ans['pictures'][0], width=200)  # Adjust the width as per your requirement
-=======
-                                    st.image(ans['pictures'][0], use_column_width=True)  # Adjust the width as per your requirement
->>>>>>> e94a37745e14e69a860e6ea36beab09e3b322009
-=======
-                                    st.image(ans['pictures'][0], use_column_width=True)  # Adjust the width as per your requirement
->>>>>>> 783eeb382ed13569874106dedaef67b36914ccbe
 
                             # Display other content in the second column
                             with col2:
