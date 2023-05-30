@@ -7,7 +7,11 @@ def submitForm(s) :
     st.info("Success")
 
 try :
+<<<<<<< HEAD
     st.set_page_config(page_title="PassionPassport - Price", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
+=======
+    st.set_page_config(page_title="PassionPassport -Result", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
+>>>>>>> e94a37745e14e69a860e6ea36beab09e3b322009
 
     st.subheader("Passion Passport Result")
     st.write("This is the result from our algorithm to give you the best itinerary in the world")

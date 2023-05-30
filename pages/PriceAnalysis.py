@@ -5,7 +5,7 @@ import pandas as pd
 
 
 try : 
-    st.set_page_config(page_title="PassionPassport - Price", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
+    st.set_page_config(page_title="PassionPassport - Price Analysis", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
     currentDB = st.session_state.db.child(st.session_state.user['localId'])
     flights = []
     # st.write(currentDB.child['ticket_price'].get())
