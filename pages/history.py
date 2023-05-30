@@ -2,9 +2,10 @@ import pyrebase
 import streamlit as st
 import streamlit.components.v1 as components
 
+st.set_page_config(page_title="PassionPassport - History", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
+
 st.subheader("Saved Itineraries")
 try :
-    st.set_page_config(page_title="PassionPassport - History", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
     st.write(list(st.session_state.db.child(st.session_state.user['localId']).child("itinerary").get().val().values())[0])
 except :
     st.error("You need to be logged in")

@@ -117,12 +117,12 @@ if authenticate == 'Signup':
     name = st.sidebar.text_input('Enter your Name')
     place = st.sidebar.text_input('Enter your Location')
     handle = st.sidebar.text_input('Please input your name', value = " ")
-    submit = st.sidebar.button('Sign Up')
+    submit = st.sidebar.button('Log In')
 
 
     if submit :
         user = auth.create_user_with_email_and_password(email, password)
-        st.success('Your account is successfully made')
+        st.success('Your account has successfully been created!')
        
         #Signing the user and create a user variable
         user = auth.sign_in_with_email_and_password(email, password)
@@ -130,7 +130,7 @@ if authenticate == 'Signup':
         db.child(user['localId']).child("ID").set(user['localId'])
         db.child(user['localId']).child("Location").set(place)
         st.title("Hi, " + handle)
-        st.info('Login successfully')
+        st.info('Login successful')
 
 
 
@@ -138,7 +138,7 @@ if authenticate == 'Signup':
 if authenticate == 'Login' :
     email = st.sidebar.text_input('Enter your email address')
     password = st.sidebar.text_input('Enter your password', type = 'password')
-    submit = st.sidebar.button('Sign Up')
+    submit = st.sidebar.button('Log In')
     if submit :
         try: 
             user = auth.sign_in_with_email_and_password(email, password)
@@ -155,19 +155,23 @@ if authenticate == 'Login' :
     openai.api_key = st.secrets['openai_key']
     st.image("https://thumbs.dreamstime.com/b/travel-banner-landmarks-airplane-around-world-tourism-background-vector-illustration-109951098.jpg")
     st.title("Passion Passport Travel Machine")
-    st.write("This is the travel machine that suggests you the best places according to your preference.")
+    st.write("""This is the travel machine that suggests you the best places according to your preference.
+    
+Not sure where to travel? Plan an itinerary with us today!""")
     people_array = ""
     option = st.selectbox('Depart from',options=getIata())[0:4]
     adults = st.number_input("Number of adults ", step=1, value=1, key="adult")
-    childrens = st.number_input("Number of childrens ", step=1, value=0, key="child")
+    childrens = st.number_input("Number of children ", step=1, value=0, key="child")
     childrens_string = ""
     if childrens > 0 :
         childrens_string = "&children=" + str(childrens)
     st.subheader("Preference Indicator")
-    st.write("Sample answer: Hike the mountain, swim in the beach, be in a cold country")
+    st.write("""Tell us what you like to do - your hobby, your interest, your preference
+    
+Sample answer: Hike the mountain, swim in the beach, be in a cold country""")
     for i in range(0, int(adults) + int(childrens)) :
         user_input = st.text_area("Interest of Person " + str(i + 1) ,placeholder = "Your suggestion", key="input" + str(i))
-        st.write("Tell us what you like to do, your hobby, your interest, your preference")
+        st.write("Tell us what you like to do - your hobby, your interest, your preference")
         people_array += "People " + str(i + 1) + " likes to " + user_input + "."
         chat_gpt = people_array + "Suggest 1 city according to these people in the format 'Bangkok'. City only "
     date = st.date_input("Departure Date *(must be after this date)")

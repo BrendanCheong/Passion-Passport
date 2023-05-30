@@ -3,8 +3,8 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 try :
-    st.set_page_config(page_title="PassionPassport - About Us", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
-    st.subheader("All information regarding the covid situation in your destination journey")
+    st.set_page_config(page_title="PassionPassport - COVID Information", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
+    st.subheader("COVID-19 Travel Information")
     if 'covid' in st.session_state : 
         covid = st.session_state.covid
         st.image("https://img.freepik.com/free-vector/covid-safe-travel-banner-design-with-passengers-wearing-masks_1308-87504.jpg")
@@ -23,3 +23,6 @@ try :
 
 except Exception as e :
     st.error(e)
+
+st.sidebar.title("PassionPassport")
+st.sidebar.image("assets/pp_logo2.jpg", use_column_width=True)
