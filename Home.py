@@ -72,7 +72,9 @@ def find_long_and_lat(s):
 
 
 
-
+st.set_page_config(page_title="PassionPassport - Home", page_icon = "✈️", layout = "centered", initial_sidebar_state = "auto")
+st.sidebar.title("PassionPassport")
+st.sidebar.image("assets/pp_logo2.jpg", use_column_width=True)
 
 base_url = "https://test.api.amadeus.com/v1/"
 
@@ -102,7 +104,6 @@ st.session_state.db = db
 storage = firebase.storage()
 
 
-st.sidebar.title("Your Travelling App")
 
 
 # Authentication
@@ -179,6 +180,7 @@ if authenticate == 'Login' :
         
     res_box = st.empty()
     if pressed:
+        st.text("Loading...")
         completions = openai.ChatCompletion.create(model="gpt-4", messages=[
                             {"role": "assistant",
                             "content": chat_gpt,
