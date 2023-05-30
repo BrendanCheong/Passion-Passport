@@ -11,6 +11,7 @@ import pycountry
 import pandas as pd
 import folium
 from streamlit_folium import st_folium, folium_static
+from bs4 import BeautifulSoup
 
 
 firebaseConfig = {
@@ -253,7 +254,10 @@ if authenticate == 'Login' :
                             # Display other content in the second column
                             with col2:
                                 if 'shortDescription' in ans:
-                                    components.html(ans['shortDescription'], height=200)
+                                    desc = ans['shortDescription']
+                                    soup1 = BeautifulSoup(desc, "html.parser")
+                                    clean_text1 = soup1.get_text()
+                                    st.write(desc)
 
                             object = {
                                     'name': ans['name'],
