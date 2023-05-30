@@ -15,7 +15,7 @@ Users can key in an input (e.g a hobby - swimming) for himself, along with anoth
 
 **How we built it**
 
-We used Streamlit, HTML and CSS as our front-end for our web application, and utilised the OpenAI API as well as Firebase for our back-end.
+We used Streamlit, HTML and CSS as our front-end for our web application, and utilised the OpenAI API as well as Firebase for our back-end. BeautifulSoup4 was also used to scrape travel  information from online websites.
 
 **What makes our solution stand out**
 
@@ -27,4 +27,4 @@ A key issue that we've faced is the transition from our typical skillset of HTML
 
 **Built with**
 
-`Firebase` `Python` `Streamlit` `HTML` `CSS` `OpenAI API`
+`Firebase` `Python` `Streamlit` `HTML` `CSS` `OpenAI API` `BeautifulSoup4`
