@@ -28,3 +28,8 @@ A key issue that we've faced is the transition from our typical skillset of HTML
 **Built with**
 
 `Firebase` `Python` `Streamlit` `HTML` `CSS` `OpenAI API` `BeautifulSoup4`
+
+**Links**
+Devpost: https://devpost.com/software/t-p-jc-passionpassport
+Video Demo: https://lnkd.in/gEHWUiKN
+Pitch Deck: https://lnkd.in/ggFu3ecD
