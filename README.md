@@ -1,4 +1,4 @@
-# lifehack-2023
+# LifeHack 2023: PassionPassport - A web application that recommends travel locations based on one’s hobbies.
 Theme: Re-defining the Post-Pandemic Travelling Landscape
 
 For LifeHack 2023, we have chosen the theme of Re-defining the Post-Pandemic Traveling Landscape, which requires us to ideate an application to reintroduce travel to post-COVID travellers.
